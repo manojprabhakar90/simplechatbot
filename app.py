@@ -11,7 +11,7 @@ from nltk.stem.lancaster import LancasterStemmer
 stemmer = LancasterStemmer()
 
 with open("intents.json") as file:
-    data = json.load(file)
+    intents_data = json.load(file)
 
 with open("data.pickle", "rb") as f:
     words, labels, training, output = pickle.load(f)
