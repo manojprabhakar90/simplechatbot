@@ -35,6 +35,26 @@ st.title("Candidtron Chatbot")
 
 tags = [intent['tag'] for intent in intents_data['intents'] if intent['responses']]
 
+def get_response(user_input):
+    # Preprocess the user_input to create a bag-of-words
+    bag = bag_of_words(user_input, words)
+    
+    # Use the model to predict the tag
+    model_output = model.predict(np.array([bag]))[0]
+    predicted_tag_index = np.argmax(model_output)
+    predicted_tag = labels[predicted_tag_index]
+
+    # Find the corresponding tag in the intents and choose a random response
+    responses = [intent['responses'] for intent in intents_data['intents'] if intent['tag'] == predicted_tag]
+    
+    # If the model is very confident in its prediction, return a response
+    if model_output[predicted_tag_index] > 0.7:
+        response = random.choice(responses[0]) if responses else "I am not sure how to respond to that."
+    else:
+        response = "I didn't get that. Can you rephrase?"
+
+    return response
+
 # Start a conversation list
 if 'conversation' not in st.session_state:
     st.session_state['conversation'] = []
@@ -60,19 +80,3 @@ if st.button("Send", key="send"):
 for line in st.session_state['conversation']:
     st.text(line)
 
-def get_response(user_input):
-    # Preprocess the user_input to create a bag-of-words
-    bag = bag_of_words(user_input, words)
-    
-    model_output = model.predict(np.array([bag]))[0]
-    predicted_tag_index = np.argmax(model_output)
-    predicted_tag = labels[predicted_tag_index]
-
-    responses = [intent['responses'] for intent in data['intents'] if intent['tag'] == predicted_tag]
-    
-    if model_output[predicted_tag_index] > 0.7:
-        response = random.choice(responses[0]) if responses else "I am not sure how to respond to that."
-    else:
-        response = "I didn't get that. Can you rephrase?"
-
-    return response
